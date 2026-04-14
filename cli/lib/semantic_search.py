@@ -74,12 +74,11 @@ class ChunkSemanticSearch(SemanticSearch):
         self.chunk_embeddings_path = os.path.join(CACHE_DIR, "chunk_embeddings.npy")
         self.chunk_metadata = None
         self.chunk_metadata_path = os.path.join(CACHE_DIR, "chunk_metadata.json")
-        self.model = SentenceTransformer('all-MiniLM-L6-v2')
 
 
     def build_chunk_embeddings(self, documents):
         self.documents = documents
-        self.document_map = {doc['id']:doc for doc in documents}
+        self.document_map = {idx: doc for idx, doc in enumerate(documents)}
         all_chunks = [] # List[str]
         chunk_metadata = [] #List[dict]
 
@@ -92,7 +91,6 @@ class ChunkSemanticSearch(SemanticSearch):
                 chunk_metadata.append({"movie_idx": midx,
                                        "chunk_idx": cidx,
                                        "total_chunks": len(_chunks)})
-
         self.chunk_embeddings = self.model.encode(all_chunks, show_progress_bar=True)
         self.chunk_metadata = {"chunks": chunk_metadata, "total_chunks": len(all_chunks)}
 
@@ -105,7 +103,7 @@ class ChunkSemanticSearch(SemanticSearch):
 
     def load_or_create_chunk_embeddings(self, documents: list[dict]) -> np.ndarray:
         self.documents = documents
-        self.document_map = {doc['id']:doc for doc in documents}
+        self.document_map = {idx: doc for idx, doc in enumerate(documents)}
         if os.path.exists(self.chunk_embeddings_path) and os.path.exists(self.chunk_metadata_path):
             self.chunk_embeddings = np.load(self.chunk_embeddings_path)
             with open(self.chunk_metadata_path, 'r') as f:
@@ -133,7 +131,6 @@ class ChunkSemanticSearch(SemanticSearch):
 
         result = []
         for midx, score in movie_scores_sorted[:limit]:
-            print(midx)
             doc = self.document_map[midx]
             result.append({'id': doc['id'],
                            'title': doc['title'],
