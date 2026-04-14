@@ -19,7 +19,7 @@ from .search_utils import (
 class InvertedIndex:
     def __init__(self) -> None:
         self.index = defaultdict(set) #token: [doc_id1, doc_id2]
-        self.docmap: dict[int, dict] = {}
+        self.docmap: dict[int, dict] = {} #doc_id: movie
         self.doc_lengths: dict[int, int] = {}
         self.index_path = os.path.join(CACHE_DIR, "index.pkl")
         self.docmap_path = os.path.join(CACHE_DIR, "docmap.pkl")
